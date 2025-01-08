@@ -95,6 +95,7 @@ def main_actions():
         elif choice == 5:  # Transfer Money
             owner = input("Enter your name: ")
             source_acc_type = input("Select source account type (Checking/Savings): ").capitalize()
+            account = accounts[owner][acc_type]
 
             if owner in accounts and source_acc_type in accounts[owner]:
                 try:
@@ -105,9 +106,9 @@ def main_actions():
                     if target_owner in accounts and target_acc_type in accounts[target_owner]:
                         accounts[owner][source_acc_type].transfer(amount, accounts[target_owner][target_acc_type])
                         if target_owner == owner:
-                            print(f"Transferred {amount} from your {source_acc_type} account to your {target_acc_type} account.")
+                            print(f"Transferred {amount} from your {source_acc_type} account to your {target_acc_type} account. New Balance: {account.get_balance()}")
                         else:
-                            print(f"Transferred {amount} from your {source_acc_type} account to {target_owner}'s {target_acc_type} account.")
+                            print(f"Transferred {amount} from your {source_acc_type} account to {target_owner}'s {target_acc_type} account. New Balance: {account.get_balance()}")
                     else:
                         print("Target account not found.")
                 except ValueError:
