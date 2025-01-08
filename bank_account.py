@@ -9,6 +9,26 @@ class BankAccount:
             raise ValueError("Balance must be a non-negative number.")
         self.__balance = balance  # Private attribute
 
+    def to_dict(self):
+        '''This function serializes the BankAccount object. 
+        Converts the instance of BankAccount into a dictionary'''
+        return {
+            'owner': self.owner,
+            'balance': self.get_balance(),
+            'account_type': self.account_type,
+            'transaction_history': self.transaction_history
+        }
+    
+    @classmethod
+    def from_dict(cls, data):
+        """Creates a BankAccount instance from a dictionary."""
+        return cls(
+            owner=data['owner'],
+            balance=data['balance'],
+            account_type=data['account_type']
+        )
+
+
 
     def deposit(self, amount):
         self.transaction_history.append('Current balance: {}'.format(self.__balance))

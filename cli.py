@@ -1,6 +1,41 @@
+import json
+
 from bank_account import BankAccount
 
+import json
+import os
 
+class ReadWrite:
+    def __init__(self, file_name='accounts.json'):
+        self.file_name = file_name
+
+    def write(self, data):
+        """Writes the provided data to the JSON file."""
+        serializable_data = {
+        owner: {acc_type: account.to_dict() for acc_type, account in accounts.items()}
+        for owner, accounts in data.items()
+    }
+        try:
+            with open(self.file_name, 'w') as file:
+                json.dump(serializable_data, file, indent=4)
+            print(f"Data successfully written to {self.file_name}")
+        except IOError as e:
+            print(f"Error writing to file {self.file_name}: {e}")
+
+    def read(self):
+        """Reads data from the JSON file. Returns an empty dictionary if the file doesn't exist."""
+        if os.path.exists(self.file_name):
+            try:
+                with open(self.file_name, 'r') as file:
+                    return json.load(file)
+            except json.JSONDecodeError:
+                print(f"Error decoding JSON from {self.file_name}. Returning an empty dataset.")
+                return {}
+        else:
+            print(f"File {self.file_name} does not exist. Returning an empty dataset.")
+            return {}
+
+    
 def list_accounts(owner, accounts):
     if owner not in accounts:
         print('No account found for this user')
@@ -51,6 +86,7 @@ def main_actions():
             continue
 
         if choice == 1:  # Create Account
+            save_account_creation = ReadWrite(file_name='accounts.json')
             owner = input("Please enter your name: ").capitalize()
             acc_type = input("Select account type (Checking/Savings): ").capitalize()
             if acc_type not in ["Checking", "Savings"]:
@@ -66,6 +102,7 @@ def main_actions():
                 try:
                     initial_balance = float(input("Enter an initial balance: "))
                     accounts[owner][acc_type] = BankAccount(owner, initial_balance, acc_type)
+                    save_account_creation.write(accounts)
                     print(f"Welcome {owner}, your {acc_type} account was created successfully! Balance: {initial_balance}")
                 except ValueError:
                     print("Invalid input. Initial balance must be a number.")

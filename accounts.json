@@ -1,0 +1,10 @@
+{
+    "Arham": {
+        "Checking": {
+            "owner": "Arham",
+            "balance": 9000.0,
+            "account_type": "Checking",
+            "transaction_history": []
+        }
+    }
+}
