@@ -17,7 +17,6 @@ class BankAccount:
                 print("Enter a valid amount.")
             else:
                 self.__balance += amount
-                print("You have deposited {} . New balance:{}".format(amount, self.__balance))
                 self.transaction_history.append("Deposit: {}. Current Balance: {}".format(amount, self.__balance))
         except TypeError:
             print('Deposit must be a number')
