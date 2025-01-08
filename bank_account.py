@@ -1,6 +1,6 @@
 class BankAccount:
-    def __init__(self, owner, balance=0, account_type = "Checking"):
-        if account_type not in  ("Checking", "Savings"):
+    def __init__(self, owner, balance=0, account_type = "C"):
+        if account_type.capitalize() not in  ("Checking", "Savings"):
             raise ValueError("Account_type must either be Checking or Savings account")
         self.account_type = account_type
         self.transaction_history = []
@@ -17,8 +17,8 @@ class BankAccount:
                 print("Enter a valid amount.")
             else:
                 self.__balance += amount
-                print("You have deposited {}".format(amount))
-                self.transaction_history.append("Deposit: {}. New balance:{}".format(amount, self.__balance))
+                print("You have deposited {} . New balance:{}".format(amount, self.__balance))
+                self.transaction_history.append("Deposit: {}. Current Balance: {}".format(amount, self.__balance))
         except TypeError:
             print('Deposit must be a number')
 
@@ -52,5 +52,9 @@ class BankAccount:
             self.transaction_history.append("Transfered {} to {} New balance: {}".format(amount, self.owner, self.__balance))
             self.transaction_history.append("Revieved {} from {} New balance: {}".format(amount,self.owner, target_account.__balance))
 
+    def get_balance(self):
+        return self.__balance
+
+
     def __str__(self):
-        return f'Hello {self.owner}, your account balance is now: {self.__balance}'
+        return f'Hello {self.owner}, your account balance is now {self.__balance}'
