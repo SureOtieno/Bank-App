@@ -1,5 +1,20 @@
 from bank_account import BankAccount
 
+
+def list_accounts(owner, accounts):
+    if owner not in accounts:
+        print('No account found for this user')
+        return 
+    
+    user_accounts = accounts[owner]
+
+    if not user_accounts:
+        print('You have no accounts')
+    else:
+        print(f'Accounts for {owner}: ')
+        for acc_type, account in user_accounts.items():
+            print(f'- {acc_type} Account: Balance: {account.get_balance()}')
+
 def main_actions():
     print("Welcome to the Customer CLI")
     accounts = {}  # Format: {"owner_name": {"Checking": account_obj, "Savings": account_obj}}
@@ -12,7 +27,8 @@ def main_actions():
         print("4: View Account")
         print("5: Transfer Money")
         print("6: Account Balance")
-        print("7: Exit")
+        print("7: List Accounts")
+        print("8: Exit")
 
         try:
             choice = int(input("Choose an Option: "))
@@ -88,7 +104,10 @@ def main_actions():
 
                     if target_owner in accounts and target_acc_type in accounts[target_owner]:
                         accounts[owner][source_acc_type].transfer(amount, accounts[target_owner][target_acc_type])
-                        print(f"Transferred {amount} from your {source_acc_type} account to {target_owner}'s {target_acc_type} account.")
+                        if target_owner == owner:
+                            print(f"Transferred {amount} from your {source_acc_type} account to your {target_acc_type} account.")
+                        else:
+                            print(f"Transferred {amount} from your {source_acc_type} account to {target_owner}'s {target_acc_type} account.")
                     else:
                         print("Target account not found.")
                 except ValueError:
@@ -96,7 +115,11 @@ def main_actions():
             else:
                 print("Source account not found. Please create the account first.")
 
-        elif choice == 7:  # Exit
+        elif choice == 7:
+            owner = input('Enter your name: ')
+            list_accounts(owner, accounts)
+        
+        elif choice == 8:  # Exit
             confirm_exit = input("Are you sure you want to exit? (yes/no): ").lower()
             if confirm_exit == "yes":
                 print("Exiting... Thank you for using the Customer CLI!")
@@ -105,5 +128,9 @@ def main_actions():
                 print("Returning to the main menu.")
         else:
             print("Invalid choice. Please choose a valid option.")
+    
+
 
 main_actions()
+
+

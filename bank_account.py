@@ -44,17 +44,26 @@ class BankAccount:
         except TypeError:
                 print("Entry must be a number.")
 
-    def transfer(self, amount, target_account):
+    def transfer(self, amount,target_account):
         if amount > self.__balance:
-            print("The amount is too high. Choose a lower amount.")
-        else:
-            target_account.deposit(amount)
-            self.transaction_history.append("Transfered {} to {} New balance: {}".format(amount, self.owner, self.__balance))
-            self.transaction_history.append("Revieved {} from {} New balance: {}".format(amount,self.owner, target_account.__balance))
+            return "The amount is too high. Choose a lower amount."
+        
+        if amount <= 0:
+            return "Please enter a valid amount"
+        
+        # Make dections from sender
+        self.__balance -= amount
+        self.transaction_history.append("Transfered {} to {} New balance: {}".format(amount, self.account_type, self.__balance))
+                
+        target_account.deposit(amount)
+        self.transaction_history.append("Revieved {} from {} New balance: {}".format(amount,self.owner, target_account.__balance))
 
+        return f'Successfully transfered {amount} to {target_account.owner}.'
+    
     def get_balance(self):
         return self.__balance
 
 
     def __str__(self):
         return f'Hello {self.owner}, your account balance is now {self.__balance}'
+    
