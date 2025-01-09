@@ -1,10 +1,1 @@
-{
-    "Arham": {
-        "Checking": {
-            "owner": "Arham",
-            "balance": 9000.0,
-            "account_type": "Checking",
-            "transaction_history": []
-        }
-    }
-}
+{"Arham": {"Checking": {"owner": "Arham", "balance": 100500.0, "account_type": "Checking", "transaction_history": ["Current Balance: 120500.0", "Checking Withdrawal: 5000.0. New Checking balance: 115500.0", "Transfered 15000.0 to Checking New balance: 100500.0", "Revieved 15000.0 from Arham New balance: 18650.0"]}, "Savings": {"owner": "Arham", "balance": 18650.0, "account_type": "Savings", "transaction_history": ["Current balance: 1250.0", "Deposit: 2400.0. Current Balance: 3650.0", "Current balance: 3650.0", "Deposit: 15000.0. Current Balance: 18650.0"]}}, "Nima": {"Savings": {"owner": "Nima", "balance": 15000.0, "account_type": "Savings", "transaction_history": ["Current balance: 4500.0", "Deposit: 5500.0. Current Balance: 10000.0"]}, "Checking": {"owner": "Nima", "balance": 10000.0, "account_type": "Checking", "transaction_history": ["Current balance: 4500.0", "Deposit: 5500.0. Current Balance: 10000.0"]}}}

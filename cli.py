@@ -1,41 +1,79 @@
 import json
+import os
 
 from bank_account import BankAccount
 
-import json
-import os
-
 class ReadWrite:
-    def __init__(self, file_name='accounts.json'):
+    def __init__(self, file_name="accounts.json"):
         self.file_name = file_name
 
-    def write(self, data):
-        """Writes the provided data to the JSON file."""
-        serializable_data = {
-        owner: {acc_type: account.to_dict() for acc_type, account in accounts.items()}
-        for owner, accounts in data.items()
-    }
-        try:
-            with open(self.file_name, 'w') as file:
-                json.dump(serializable_data, file, indent=4)
-            print(f"Data successfully written to {self.file_name}")
-        except IOError as e:
-            print(f"Error writing to file {self.file_name}: {e}")
+    def save_accounts(self, accounts):
+        json_data = {
+        owner: {
+            acc_type: acc for acc_type, acc in acc_types.items()
+        } for owner, acc_types in accounts.items()}
+        
+        with open(self.file_name, 'w') as file:
+            json.dump(json_data, file)
+        
 
-    def read(self):
-        """Reads data from the JSON file. Returns an empty dictionary if the file doesn't exist."""
-        if os.path.exists(self.file_name):
+    def load_accounts(self):
+        if not os.path.exists(self.file_name):  # Ensure the file exists
+            with open(self.file_name, 'w') as file:
+                json.dump({}, file)  # Create an empty dictionary structure
+        else:
             try:
                 with open(self.file_name, 'r') as file:
-                    return json.load(file)
-            except json.JSONDecodeError:
-                print(f"Error decoding JSON from {self.file_name}. Returning an empty dataset.")
+                    json_data =  json.load(file)
+                accounts = {
+                    owner: {
+                        acc_type: BankAccount(
+                            owner=data["owner"],
+                            balance=data["balance"],
+                            account_type=data["account_type"],
+                            transaction_history=data.get("transaction_history", [])
+                        )
+                        for acc_type, data in acc_types.items()
+                    }
+                    for owner, acc_types in json_data.items()}
+                return accounts
+            except json.JSONDecodeError:  # Handle invalid or empty JSON files
+                with open(self.file_name, 'w') as file:
+                    json.dump({}, file)
                 return {}
-        else:
-            print(f"File {self.file_name} does not exist. Returning an empty dataset.")
-            return {}
+        
+def create_account(accounts,owner, acc_type, initial_balance):
+    if acc_type not in ["Checking", "Savings"]:
+        print("Invalid account type. Please choose either 'Checking' or 'Savings'.")
 
-    
+    if owner not in accounts:
+        accounts[owner] = {}  # Initialize a new dictionary for this owner
+
+    if acc_type in accounts[owner]:
+        print(f"You already have a {acc_type} account.")
+    else:
+        try:
+            accounts[owner][acc_type] = BankAccount(owner, initial_balance, acc_type)
+            print(f"Welcome {owner}, your {acc_type} account was created successfully! Balance: {initial_balance}")
+        except ValueError:
+            print("Invalid input. Initial balance must be a number.")
+
+def deposit(accounts, owner, amount, acc_type):
+    account = accounts[owner][acc_type]
+    if owner in accounts and acc_type in accounts[owner]:
+        account.deposit(amount)
+        print(f"Deposited {amount} into your {acc_type} account. Current Balance: {account.get_balance()}")
+    else:
+        print('Account not found.')
+
+def withdraw(accounts, owner, amount, acc_type):
+    account = accounts[owner][acc_type]
+    if owner in accounts and acc_type in accounts[owner]:
+        account.withdraw(amount)
+        print(f"Withdrew {amount} from your {acc_type} account. Current Balance: {account.get_balance()}")
+    else:
+        print("Account not fount")
+
 def list_accounts(owner, accounts):
     if owner not in accounts:
         print('No account found for this user')
@@ -63,11 +101,42 @@ def is_num():
         return amount
     else:
         raise ValueError('Entry must be Integer / Float')
+    
+def tranfer_money(accounts, owner, target_owner, account, target_acc_type, amount, source_acc_type):
+    if target_owner in accounts and target_acc_type in accounts[target_owner]:
+        try:
+            account.transfer(amount, accounts[target_owner][target_acc_type])
+            if target_owner == owner:
+                print(f"Transferred {amount} from your {source_acc_type} account to your {target_acc_type} account. New Balance: {account.get_balance()}")
+            else:
+                print(f"Transferred {amount} from your {source_acc_type} account to {target_owner}'s {target_acc_type} account. New Balance: {account.get_balance()}")
+        except:
+            print('Account do not exist.') 
+    else:
+        print("Source account not found. Please create the account first.")
+
+def view_account(accounts, owner):
+    if owner in accounts:
+        for acc_type, account in accounts[owner].items():
+            print(f"Name: {owner} Accounts: {acc_type} Account: {account}")
+    else:
+        print("No accounts found for this owner.")
 
 def main_actions():
     print("Welcome to the Customer CLI")
-    accounts = {}  # Format: {"owner_name": {"Checking": account_obj, "Savings": account_obj}}
 
+    data = ReadWrite()
+    try:
+        accounts = data.load_accounts()  # Format: {"owner_name": {"Checking": account_obj, "Savings": account_obj}}
+        
+    except FileNotFoundError:
+        print('No existing file found. Creating an empty one now...')
+        accounts = {}
+    except json.JSONDecodeError:
+        print("Corrupted data file. Starting fresh.")
+        accounts = {}
+
+    
     while True:
         print("\nOptions:")
         print("1: Create Account")
@@ -86,42 +155,43 @@ def main_actions():
             continue
 
         if choice == 1:  # Create Account
-            save_account_creation = ReadWrite(file_name='accounts.json')
             owner = input("Please enter your name: ").capitalize()
             acc_type = input("Select account type (Checking/Savings): ").capitalize()
-            if acc_type not in ["Checking", "Savings"]:
-                print("Invalid account type. Please choose either 'Checking' or 'Savings'.")
-                continue
+            initial_balance = float(input("Enter an initial balance: "))
 
-            if owner not in accounts:
-                accounts[owner] = {}  # Initialize a new dictionary for this owner
-
-            if acc_type in accounts[owner]:
-                print(f"You already have a {acc_type} account.")
-            else:
-                try:
-                    initial_balance = float(input("Enter an initial balance: "))
-                    accounts[owner][acc_type] = BankAccount(owner, initial_balance, acc_type)
-                    save_account_creation.write(accounts)
-                    print(f"Welcome {owner}, your {acc_type} account was created successfully! Balance: {initial_balance}")
-                except ValueError:
-                    print("Invalid input. Initial balance must be a number.")
+            create_account(accounts, owner, acc_type, initial_balance)
+            # We will add our data persistence code here...
+            accounts_dict = {
+                            owner: {acc_type: acc.to_dict() for acc_type, acc in acc_types.items()}
+                            for owner, acc_types in accounts.items()
+                        }
+            data.save_accounts(accounts_dict)
 
         elif choice in [2, 3, 6]:  # Deposit, Withdraw, or Check Balance
             owner = input("Please enter your name: ").capitalize()
             acc_type = input("Select account type (Checking/Savings): ").capitalize()
-            account = get_account(accounts, owner, acc_type)
+            
             try:
                 if choice == 2:  # Deposit
+                    # print(account)
                     amount = is_num()
 
-                    account.deposit(amount)
-                    print(f"Deposited {amount} into your {acc_type} account. Current Balance: {account.get_balance()}")
 
+                    deposit(accounts, owner, amount, acc_type)
+                    deposits = {
+                                        owner: {acc_type: acc.to_dict() for acc_type, acc in acc_types.items()}
+                                        for owner, acc_types in accounts.items()
+                                    }
+                    data.save_accounts(deposits)
                 elif choice == 3:  # Withdraw
                     amount = is_num()
-                    account.withdraw(amount)
-                    print(f"Withdrew {amount} from your {acc_type} account. Current Balance: {account.get_balance()}")
+                    withdraw(accounts, owner, amount, acc_type)
+                    withdrawals = {
+                                        owner: {acc_type: acc.to_dict() for acc_type, acc in acc_types.items()}
+                                        for owner, acc_types in accounts.items()
+                                    }
+                    data.save_accounts(withdrawals)
+                    
                 elif choice == 6:  # Check Balance
                     print(f"Your {acc_type} account balance is: {account.get_balance()}")
             except KeyError:
@@ -130,11 +200,8 @@ def main_actions():
             
         elif choice == 4:  # View Account
             owner = input("Please enter your name: ").capitalize()
-            if owner in accounts:
-                for acc_type, account in accounts[owner].items():
-                    print(f"Name: {owner} Accounts: {acc_type} Account: {account}")
-            else:
-                print("No accounts found for this owner.")
+            view_account(accounts, owner)
+            
 
         elif choice == 5:  # Transfer Money
             owner = input("Enter your name: ").capitalize().strip()
@@ -143,19 +210,14 @@ def main_actions():
             target_acc_type = input("Select target account type (Checking/Savings): ").capitalize().strip()
             account = get_account(accounts, owner, source_acc_type)
             amount = is_num()
-            if target_owner in accounts and target_acc_type in accounts[target_owner]:
-                try:
-                    account.transfer(amount, accounts[target_owner][target_acc_type])
-                    if target_owner == owner:
-                        print(f"Transferred {amount} from your {source_acc_type} account to your {target_acc_type} account. New Balance: {account.get_balance()}")
-                    else:
-                        print(f"Transferred {amount} from your {source_acc_type} account to {target_owner}'s {target_acc_type} account. New Balance: {account.get_balance()}")
-                except:
-                    print('Account do not exist.') 
-            else:
-                print("Source account not found. Please create the account first.")
+            tranfer_money(accounts, owner, target_owner, account, target_acc_type, amount, source_acc_type)
+            transfers = {
+                owner: {acc_type: acc.to_dict() for acc_type, acc in acc_types.items()}
+                                        for owner, acc_types in accounts.items()
+            }
+            data.save_accounts(transfers)
 
-        elif choice == 7:
+        elif choice == 7: # List Accounts
             owner = input('Enter your name: ').capitalize()
             list_accounts(owner, accounts)
         

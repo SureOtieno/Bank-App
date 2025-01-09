@@ -1,9 +1,9 @@
 class BankAccount:
-    def __init__(self, owner, balance=0, account_type = "C"):
+    def __init__(self, owner, balance=0, account_type = "C", transaction_history = []):
         if account_type.capitalize() not in  ("Checking", "Savings"):
             raise ValueError("Account_type must either be Checking or Savings account")
         self.account_type = account_type
-        self.transaction_history = []
+        self.transaction_history = transaction_history
         self.owner = owner
         if not isinstance(balance, (int, float)) or balance < 0:
             raise ValueError("Balance must be a non-negative number.")
@@ -63,7 +63,7 @@ class BankAccount:
         except TypeError:
                 print("Entry must be a number.")
 
-    def transfer(self, amount,target_account):
+    def transfer(self, amount, target_account):
         if amount > self.__balance:
             return "The amount is too high. Choose a lower amount."
         
@@ -77,7 +77,7 @@ class BankAccount:
         target_account.deposit(amount)
         self.transaction_history.append("Revieved {} from {} New balance: {}".format(amount,self.owner, target_account.__balance))
 
-        return f'Successfully transfered {amount} to {target_account.owner}.'
+        return f'Successfully transfered {amount} from {target_account.owner}.'
     
     def get_balance(self):
         return self.__balance
