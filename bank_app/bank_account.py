@@ -1,5 +1,5 @@
 class BankAccount:
-    def __init__(self, owner, account_type, balance, password, transaction_history = []):
+    def __init__(self, owner, account_type, password, balance=0, transaction_history = []):
         if account_type.capitalize() not in  ("Checking", "Savings"):
             raise ValueError("Account_type must either be Checking or Savings account")
         self.account_type = account_type
