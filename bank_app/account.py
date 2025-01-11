@@ -1,12 +1,19 @@
+from datetime import datetime
+
+
+time = datetime.now()
+
 class BankAccount:
-    def __init__(self, owner, account_type, password, balance=0, transaction_history = []):
-        if account_type.capitalize() not in  ("Checking", "Savings"):
+    def __init__(self, owner, account_type, balance, password, transaction_history=None):
+        if account_type.capitalize().strip() not in  ("Checking", "Savings"):
             raise ValueError("Account_type must either be Checking or Savings account")
         self.account_type = account_type
-        self.transaction_history = transaction_history
+        self.__transaction_history = transaction_history or []
         self.owner = owner
-        if not isinstance(balance, (int, float)) or balance < 0:
-            raise ValueError("Balance must be a non-negative number.")
+        if balance < 0:
+            raise ValueError("Balance cannot be a negative number")
+        if not isinstance(balance, (int, float)):
+            raise ValueError("Balance must be a number.")
         self.__balance = balance  # Private attribute
         self.password = password
 
@@ -17,7 +24,7 @@ class BankAccount:
             'owner': self.owner,
             'balance': self.get_balance(),
             'account_type': self.account_type,
-            'transaction_history': self.transaction_history,
+            'transaction_history': self.get_transaction_history(),
             'password': self.password
         }
     
@@ -40,13 +47,14 @@ class BankAccount:
                 raise ValueError("Deposits must be more than zero")
             if not isinstance(amount, (int, float)):
                 raise ValueError("Amount must be a positive number.")
+            
             self.__balance += amount
-            self.transaction_history.append("Deposit: {}. Current Balance: {}".format(amount, self.__balance))
+            self.__transaction_history.append(f"{time} -- Deposit: {amount}. Current Balance: {self.__balance}")
         except TypeError:
             print('Deposit must be a number')
 
     def withdraw(self, amount):
-        if self.__balance < amount:
+        if self.__balance <= amount:
             raise ValueError("Insufficient funds to make withdrawal.")
 
         if  amount <= 0:
@@ -59,43 +67,154 @@ class BankAccount:
                 print("Please withdraw a lower amount")
             else:
                 try:
-                    self.__balance -= amount
-                    self.transaction_history.append("Savings Withdrawal: {}. New Savings balance: {}".format(amount, self.__balance))
-                except:
-                    print("Withdraw failed. Please try a different amount.")
-        else:
-            self.__balance -= amount
-            print("Checking Withdrawal: {}".format(amount))
-            self.transaction_history.append("Checking Withdrawal: {}. New Checking balance: {}".format(amount, self.__balance))
+                    if amount <= 100:
+                        charge = 5
+                        total_deduction = amount + charge
+                        self.__balance -= total_deduction 
+                        print(f"Savings Withdrawal: {amount} -- Charge: {charge}")
+                        self.__transaction_history.append(f"{time} -- Savings Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+                    elif amount >100 and amount < 1000:
+                        charge = 10
+                        total_deduction = amount + charge
+                        self.__balance -= total_deduction 
+                        print(f"Savings Withdrawal: {amount} -- Charge: {charge}")
+                        self.__transaction_history.append(f"{time} -- Savings Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+                    elif amount > 1000 and amount <= 5000:
+                        charge = 45
+                        total_deduction = amount + charge
+                        self.__balance -= total_deduction 
+                        print(f"Savings Withdrawal: {amount} -- Charge: {charge}")
+                        self.__transaction_history.append(f"{time} -- Savings Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+                    elif amount >5000 and amount <= 10000:
+                        charge = 100
+                        total_deduction = amount + charge
+                        self.__balance -= total_deduction 
+                        print(f"Savings Withdrawal: {amount} -- Charge: {charge}")
+                        self.__transaction_history.append(f"{time} -- Savings Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+                    elif amount > 10000 and amount <= 100000:
+                        charge = 250
+                        total_deduction = amount + charge
+                        self.__balance -= total_deduction 
+                        print(f"Savings Withdrawal: {amount} -- Charge: {charge}")
+                        self.__transaction_history.append(f"{time} -- Savings Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+                    elif amount >100000 and amount <= 300000:
+                        charge = 500
+                        total_deduction = amount + charge
+                        self.__balance -= total_deduction 
+                        print(f"Savings Withdrawal: {amount} -- Charge: {charge}")
+                        self.__transaction_history.append(f"{time} -- Savings Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+                    else:
+                        print("Amount too high. Please visit your branch for assistance")
 
+                except ValueError as e:
+                    print(f"{e} Amount must be a number.")
+        else:
+            if amount <= 100:
+                charge = 5
+                total_deduction = amount + charge
+                self.__balance -= total_deduction 
+                print(f"Checking Withdrawal: {amount} -- Charge: {charge}")
+                self.__transaction_history.append(f"{time} -- Checking Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+            elif amount >100 and amount < 1000:
+                charge = 10
+                total_deduction = amount + charge
+                self.__balance -= total_deduction
+                print(f"Checking Withdrawal: {amount}") 
+                self.__transaction_history.append(f"{time} -- Checking Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+            elif amount > 1000 and amount <= 5000:
+                charge = 45
+                total_deduction = amount + charge
+                self.__balance -= total_deduction
+                print(f"Checking Withdrawal: {amount}") 
+                self.__transaction_history.append(f"{time} -- Checking Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+            elif amount >5000 and amount <= 10000:
+                charge = 100
+                total_deduction = amount + charge
+                self.__balance -= total_deduction
+                print(f"Checking Withdrawal: {amount}") 
+                self.__transaction_history.append(f"{time} -- Checking Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+            elif amount > 10000 and amount <= 100000:
+                charge = 250
+                total_deduction = amount + charge
+                self.__balance -= total_deduction 
+                print(f"Checking Withdrawal: {amount}")
+                self.__transaction_history.append(f"{time} -- Checking Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+            elif amount >100000 and amount <= 300000:
+                charge = 500
+                total_deduction = amount + charge
+                self.__balance -= total_deduction 
+                print(f"Checking Withdrawal: {amount}")
+                self.__transaction_history.append(f"{time} -- Checking Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
+            else:
+                print("Amount too high. Please visit your branch for assistance")
+                       
+            
     def transfer(self, amount, target_account):
         if not isinstance(amount, (int, float)) or amount <= 0:
             raise ValueError("Amount must be a positive number.")
         
-        if amount > self.__balance:
+        if amount >= self.__balance:
             return "The amount is too high. Choose a lower amount."
         
         if amount <= 0:
             raise ValueError("Amount must be greater than zero")
         
-        # Make dections from sender
-        self.__balance -= amount
-        self.transaction_history.append("Transfered {} to {} New balance: {}".format(amount, self.account_type, self.__balance))
+        
         try:
-            if isinstance(target_account, BankAccount):
-                target_account.deposit(amount)
-                target_account.transaction_history.append("Revieved {} from {} New balance: {}".format(amount,self.owner, target_account.__balance))
-            else: print("Account does not exist")
+            # Make dections from sender
+            if amount <= 1000:
+                charge = 10
+                total_deductions = amount + charge
+                self.__balance -= total_deductions
+                self.__transaction_history.append(f"{time} -- Transfered {amount} to {self.account_type} Charge: {charge}. New balance: {self.__balance}")
+
+            elif amount > 1000 and amount <= 10000:
+                charge = 50
+                total_deductions = amount + charge
+                self.__balance -= total_deductions
+                self.__transaction_history.append(f"{time} -- Transfered {amount} to {self.account_type} Charge: {charge}. New balance: {self.__balance}")
+
+            elif amount >10000 and amount <= 100000:
+                charge = 100
+                total_deductions = amount + charge
+                self.__balance -= total_deductions
+                self.__transaction_history.append(f"{time} -- Transfered {amount} to {self.account_type} Charge: {charge}. New balance: {self.__balance}")
+
+            elif amount > 100000 and amount <= 1000000:
+                charge = 300
+                total_deductions = amount + charge
+                self.__balance -= total_deductions
+                self.__transaction_history.append(f"{time} -- Transfered {amount} to {self.account_type} Charge: {charge}. New balance: {self.__balance}")
+
+            elif amount > 1000000 and amount <= 5000000:
+                charge = 1000
+                total_deductions = amount + charge
+                self.__balance -= total_deductions
+                self.__transaction_history.append(f"{time} -- Transfered {amount} to {self.account_type} Charge: {charge}. New balance: {self.__balance}")
+
+            else:
+                print("Amount too high. Please visit your branch for assistance")
+            
+            # make deposit to the target account/receiver
+            target_account.deposit(amount)
+            target_account.__transaction_history.append(f"{time} -- Revieved {amount} from {self.owner} New balance: {target_account.__balance}")
+            # else: print("Account does not exist")
         except ValueError:
             print("Target Account is not an instance of BankAccount class.")
 
 
         return f'Successfully transfered {amount} from {target_account.owner}.'
     
+    def interest_calculations(self, amount, interest, period):
+        pass
+
     def get_balance(self):
         return self.__balance
+    
+    def get_transaction_history(self):
+        return self.__transaction_history
 
 
     def __str__(self):
-        return f'Hello {self.owner}, your account balance is now {self.__balance}'
+        return f'{time} -- Hello {self.owner}, your account balance is {self.__balance}.'
     

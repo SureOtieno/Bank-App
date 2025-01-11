@@ -1,4 +1,4 @@
-from bank_account import BankAccount
+from bank_app.account import BankAccount
 
 
 def create_account(accounts,owner, acc_type, initial_balance):
