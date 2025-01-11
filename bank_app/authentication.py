@@ -10,8 +10,15 @@ class Security:
     def verify_password(password, hashed_password):
         return bcrypt.checkpw(password.encode(), hashed_password.encode())
     
+def validate_account_type(acc_type):
+    """Validate the account type input."""
+    if acc_type not in ["Checking", "Savings"]:
+        raise ValueError("Invalid account type. Please choose either 'Checking' or 'Savings'.")
 
-
+def check_duplicate_account(accounts, owner, acc_type):
+    """Check if the user already has an account of the given type."""
+    if acc_type in accounts.get(owner, {}):
+        raise ValueError(f"You already have a {acc_type} account.")
 
 def hash_user_password(password):
     """Hash the password for secure storage."""
@@ -29,7 +36,6 @@ def authenticate_user(accounts, owner, password):
             if Security.verify_password(password, hashed_password):
                 print("Authentication successful!")
                 return True
-
         print("Incorrect password.")
         return False
     else:
