@@ -2,13 +2,13 @@ import json
 
 from .security import (Security, hash_user_password, authenticate_user)
 from .storage_management import ReadWrite
+from .transaction_history import  view_account_transactions
 from .create_account import (create_account, 
                              create_new_account, 
                              validate_account_type)
 from .account_transactions import (withdraw, 
                                    deposit, 
                                    list_accounts, 
-                                   view_account_transactions, 
                                    get_account, 
                                    tranfer_money)
 
