@@ -1,4 +1,23 @@
 import bcrypt
+from sqlalchemy import create_engine
+import pandas as pd
+import oracledb
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+oracle_conn_string = os.getenv('ORACLE_CONN_STRING')
+
+
+try:
+    engine = create_engine(oracle_conn_string, echo=True)
+    engine = create_engine(f"{oracle_conn_string}")
+    with engine.connect() as conn:
+        print('Connected to Oracle DB successfully')
+except oracledb.DatabaseError as e:
+    print(f'Could not make a connection to the database. {e}')
+  
 
 class Security:
     @staticmethod
@@ -24,22 +43,15 @@ def hash_user_password(password):
     """Hash the password for secure storage."""
     return Security.hash_password(password)
 
-def authenticate_user(accounts, owner, password):
+
+def authenticate_user(password, hashed_password):
     """
     Authenticate a user based on their name and password.
     """
-    if owner in accounts:
-
-        # Iterate through the user's accounts to find a matching password
-        for acc_type, account in accounts[owner].items():
-            hashed_password = account.password
-            if Security.verify_password(password, hashed_password):
-                print("Authentication successful!")
-                return True
+    if Security.verify_password(password, hashed_password):
+        print("Authentication successful!")
+        return True
+    else:
         print("Incorrect password.")
         return False
-    else:
-        print("Account not found. Please create an account first.")
-        return False
 
-  

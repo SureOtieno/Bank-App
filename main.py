@@ -1,34 +1,25 @@
 import json
+from sqlalchemy import create_engine
 
 
-
-from bank_app.authentication import (Security, 
-                             hash_user_password, 
-                             authenticate_user, 
-                             validate_account_type)
+from bank_app.registration import Register
+from bank_app.authentication import (authenticate_user)
 from bank_app.storage_management import ReadWrite
 from bank_app.reporting import  view_account_transactions
-from bank_app.account_management import (create_account, 
-                             create_new_account)
+from bank_app.account_management import (AccountCreation, 
+                                   list_accounts, 
+                                   get_accounts,)
 from bank_app.transactions import (withdraw, 
                                    deposit, 
-                                   list_accounts, 
-                                   get_account, 
                                    tranfer_money)
 
 
-def main():
-    print("Welcome to the Customer CLI")
-    try: 
-        accounts = ReadWrite("./data/accounts.json").load_accounts() 
-        
-    except FileNotFoundError:
-        print('No existing file found. Creating an empty one now...')
-        accounts = {}
-    except json.JSONDecodeError:
-        print("Corrupted data file. Starting fresh.")
-        accounts = {}
 
+
+def main():
+    accounts = get_accounts()
+    
+    print("Welcome to the Customer CLI")
     
     while True:
         print("\nOptions:")
@@ -49,34 +40,19 @@ def main():
             continue
 
         if choice in [1, 2]:  # Account Creation
-            owner = input("Enter your name: ").capitalize().strip()
-            acc_type = input("Select account type (Checking/Savings): ").capitalize().strip()
-            initial_balance = float(input("Enter an initial balance: "))
 
             if choice  == 1: # Create New account
-                password = input('Set a password for your account: ')
-                validate_account_type(acc_type)   
-                hashed_password = hash_user_password(password)
-                if choice == 1:  # Create New Account
-                    new_account = create_new_account(owner, acc_type, initial_balance, hashed_password)
-                    if owner not in accounts:
-                        accounts[owner] = {}
-                    accounts[owner][acc_type] = new_account
-                    ReadWrite('data/accounts.json').save_accounts(accounts)
+                AccountCreation.create_new_account()
 
             elif choice == 2: # Add account
 
                 password = input("Enter your password: ")
-                if owner in accounts:
-                    if not authenticate_user(accounts, owner, password):
-                        print("Authentication failed. Try again later.")
-                        continue
-                    else:
-                        create_account(accounts, owner, acc_type, initial_balance, password)
-                        ReadWrite("data/accounts.json").save_accounts(accounts)
+                if not authenticate_user(accounts, password):
+                    print("Authentication failed. Please try again.")
+                    continue
                 else:
-                    print(f"{owner} is not registered. Please create an account.")
-
+                    AccountCreation.create_account()
+                        
         elif choice in [3, 4]:  # Deposit, Withdraw
             owner = input("Enter your name: ").capitalize().strip()
             acc_type = input("Select account type (Checking/Savings): ").capitalize()
@@ -92,7 +68,7 @@ def main():
                 else:
                     try:
                         if choice == 3:  # Deposit  
-                            if authenticate_user(accounts, owner, password):
+                            if authenticate_user(accounts, password):
                                 deposit(accounts, owner, amount, acc_type)                       
                                 ReadWrite("data/accounts.json").save_accounts(accounts)
                             else:
@@ -136,7 +112,7 @@ def main():
             source_acc_type = input("Select source account type (Checking/Savings): ").capitalize().strip()
             target_owner = input("Enter target account owner: ").capitalize().strip()
             target_acc_type = input("Select target account type (Checking/Savings): ").capitalize().strip()
-            account = get_account(accounts, owner, source_acc_type)
+            account = get_accounts(accounts, owner, source_acc_type)
             amount = float(input("Enter amount: "))
             password = input('Enter your password: ').strip()
             if not isinstance(amount, (float, int)):
@@ -162,9 +138,5 @@ def main():
                 print("Returning to the main menu.")
         else:
             print("Invalid choice. Please choose option [1-9].")
-    
-
-if __name__ == "__main__":
-    main()
 
 

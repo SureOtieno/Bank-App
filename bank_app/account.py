@@ -6,14 +6,16 @@ time = datetime.now()
 class BankAccount:
     def __init__(self, owner, account_type, balance, password, transaction_history=None):
         if account_type.capitalize().strip() not in  ("Checking", "Savings"):
-            raise ValueError("Account_type must either be Checking or Savings account")
+            print("Account_type must either be Checking or Savings account")
         self.account_type = account_type
         self.__transaction_history = transaction_history or []
         self.owner = owner
         if balance < 0:
-            raise ValueError("Balance cannot be a negative number")
+            print("Balance cannot be a negative number")
+        if balance > 1000000000:
+            print("Balance cannot be more than a bilion")
         if not isinstance(balance, (int, float)):
-            raise ValueError("Balance must be a number.")
+            print("Balance must be a number.")
         self.__balance = balance  # Private attribute
         self.password = password
 
@@ -22,10 +24,10 @@ class BankAccount:
         Converts the instance of BankAccount into a dictionary'''
         return {
             'owner': self.owner,
-            'balance': self.get_balance(),
             'account_type': self.account_type,
+            'balance': self.get_balance(),
+            'password': self.password,
             'transaction_history': self.get_transaction_history(),
-            'password': self.password
         }
     
     @classmethod
@@ -59,6 +61,10 @@ class BankAccount:
 
         if  amount <= 0:
             raise ValueError("Withdrawals must more than zero.")
+        
+        if  amount > 300000:
+            print("Withdrawals too high. Please choose a lower amount")
+
         if not isinstance(amount, (int, float)):
             raise ValueError("Amount must be a number.")
         
@@ -103,9 +109,7 @@ class BankAccount:
                         self.__balance -= total_deduction 
                         print(f"Savings Withdrawal: {amount} -- Charge: {charge}")
                         self.__transaction_history.append(f"{time} -- Savings Withdrawal: {amount} - charge {charge}. New Savings balance: {self.__balance}")
-                    else:
-                        print("Amount too high. Please visit your branch for assistance")
-
+                   
                 except ValueError as e:
                     print(f"{e} Amount must be a number.")
         else:
@@ -201,9 +205,6 @@ class BankAccount:
             # else: print("Account does not exist")
         except ValueError:
             print("Target Account is not an instance of BankAccount class.")
-
-
-        return f'Successfully transfered {amount} from {target_account.owner}.'
     
     def interest_calculations(self, amount, interest, period):
         pass

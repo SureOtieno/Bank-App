@@ -1,9 +1,15 @@
-def view_account_transactions(accounts, owner):
-    for owner, acc_types in accounts.items():
-        print(f"Name: {owner} ")
-        for acc_type, account in acc_types.items():
-            if owner == owner:
+from .authentication import authenticate_user
+
+def view_account_transactions(accounts, owner, password):
+    if authenticate_user(accounts,owner, password):
+        user_account = accounts.get(owner)
+        if user_account:
+            print(f"Name: {owner}")
+            for acc_type, account in user_account.items():
                 print(f"Account: {acc_type}") 
-                print(f"Transactions: {account.get_transaction_history()}")
-            else:
-                print("No accounts found for this owner.")
+                for transaction in account.get_transaction_history():
+                    print(f"Transactions: {transaction}")
+        else:
+            print("No accounts found for this owner.")
+    else:
+        print("Authentication failed. Try again later.")
